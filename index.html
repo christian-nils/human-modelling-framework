@@ -38,6 +38,8 @@
 							</div>
 							<input type="checkbox" id="tsd-filter-inherited" checked />
 							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
 							<input type="checkbox" id="tsd-filter-only-exported" />
 							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
 						</div>
@@ -62,6 +64,144 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
+				<h2 id="odex-js-odex-in-javascript">odex-js : ODEX in JavaScript</h2>
+				<p><a href="https://travis-ci.org/littleredcomputer/odex-js"><img src="https://travis-ci.org/littleredcomputer/odex-js.svg?branch=master" alt="Build Status"></a> <a href=""><img src="https://img.shields.io/github/license/littleredcomputer/odex-js.svg" alt="GitHub license"></a> <a href=""><img src="https://img.shields.io/npm/v/odex.svg" alt="npm"></a> <a href="https://coveralls.io/github/littleredcomputer/odex-js?branch=master"><img src="https://coveralls.io/repos/github/littleredcomputer/odex-js/badge.svg?branch=master" alt="Coverage Status"></a></p>
+				<h4 id="numerically-solves-of-non-stiff-systems-of-ordinary-differential-equations-in-javascript-">Numerically solves of non-stiff systems of ordinary differential equations in JavaScript.</h4>
+				<p>This is a port to JavaScript (actually, TypeScript) of <a href="http://www.unige.ch/~hairer/software.html">E. Hairer and
+					G. Wanner&#39;s implementation</a> of the <a href="https://en.wikipedia.org/wiki/Bulirsch%E2%80%93Stoer_algorithm">Gragg-Bulirsch-Stoer</a> method of integrating
+					systems of differential equations. The original code is written in idiomatic
+					Fortran; this code tries to present an idiomatic JavaScript interface while
+					preserving all the of the virtues of the original code, including its speed,
+				configurability, and compact memory footprint.</p>
+				<h4 id="examples">Examples</h4>
+				<p>(We&#39;ll write the usage examples in plain JavaScript. The usage from TypeScript
+				is very similar.)</p>
+				<h5 id="one-first-order-equation">One first-order equation</h5>
+				<p>The simplest possible example would be y&prime; = y, with y(0) = 1: we expect the
+					solution y(x) = exp(x). First we create a solver object, telling how many
+				independent variables there are in the system (in this case just one).</p>
+				<pre><code class="language-js"><span class="hljs-keyword">var</span> odex = <span class="hljs-built_in">require</span>(<span class="hljs-string">'odex'</span>);
+<span class="hljs-keyword">var</span> s = <span class="hljs-keyword">new</span> odex.Solver(<span class="hljs-number">1</span>);</code></pre>
+				<p>To represent the differential equation, we write a
+					routine that computes y&prime; given y at the point x. For this example it&#39;s very
+				simple:</p>
+				<pre><code class="language-js"><span class="hljs-keyword">var</span> f = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y</span>) </span>{
+  <span class="hljs-keyword">return</span> y;
+}</code></pre>
+				<p>Since we asked for one independent variable, <code>y</code> is an array of length 1.
+				We return an array of the same size.</p>
+				<p>We can solve the equation by supplying the initial data and the start
+				and endpoints. Let&#39;s find y(1):</p>
+				<pre><code class="language-js">s.solve(f,
+        <span class="hljs-number">0</span>,    <span class="hljs-comment">// initial x value</span>
+        [<span class="hljs-number">1</span>],  <span class="hljs-comment">// initial y values (just one in this example)</span>
+        <span class="hljs-number">1</span>);   <span class="hljs-comment">// final x value</span>
+<span class="hljs-comment">// { y: [ 2.7182817799042955 ],</span>
+<span class="hljs-comment">//   outcome: 0,</span>
+<span class="hljs-comment">//   nStep: 7,</span>
+<span class="hljs-comment">//   xEnd: 1,</span>
+<span class="hljs-comment">//   nAccept: 7,</span>
+<span class="hljs-comment">//   nReject: 0,</span>
+<span class="hljs-comment">//   nEval: 75 }</span></code></pre>
+				<p>Not bad: the answer <code>y[1]</code> is close to <em>e</em>. It would be closer if we requested
+					more precision. When you create a new <code>Solver</code> object, it is
+					equipped with a number of properties you can change to control the integration.
+				You can change a property and re-run the solution:</p>
+				<pre><code class="language-js">s.absoluteTolerance = s.relativeTolerance = <span class="hljs-number">1e-10</span>;
+s.solve(f, <span class="hljs-number">0</span>, [<span class="hljs-number">1</span>], <span class="hljs-number">1</span>).y
+<span class="hljs-comment">// [ 2.7182818284562535 ]</span>
+<span class="hljs-built_in">Math</span>.exp(<span class="hljs-number">1</span>) - <span class="hljs-number">2.7182818284562535</span>
+<span class="hljs-comment">// 2.7915447731174936e-12</span></code></pre>
+				<h5 id="integration-callback">Integration callback</h5>
+				<p>You can supply a callback function that runs during the integration to supply intermediate
+					points of the integration as it proceeds. The callback function is an optional
+					parameter to <code>solve</code>, which receives the step number, x0, x1 and y(x1). (x0
+				and x1 represent the interval covered in this integration step).</p>
+				<pre><code class="language-js">s.solve(f, <span class="hljs-number">0</span>, [<span class="hljs-number">1</span>], <span class="hljs-number">1</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">n,x0,x1,y</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(n,x0,x1,y);
+}).y
+<span class="hljs-comment">// 1 0 0 [ 1 ]</span>
+<span class="hljs-comment">// 2 0 0.0001 [ 1.0001000050001667 ]</span>
+<span class="hljs-comment">// 3 0.0001 0.0007841772783189289 [ 1.000784484825706 ]</span>
+<span class="hljs-comment">// 4 0.0007841772783189289 0.004832938716978181 [ 1.0048446362021166 ]</span>
+<span class="hljs-comment">// 5 0.004832938716978181 0.01913478583589434 [ 1.0193190291261103 ]</span>
+<span class="hljs-comment">// 6 0.01913478583589434 0.0937117110731088 [ 1.0982430889534374 ]</span>
+<span class="hljs-comment">// 7 0.0937117110731088 0.2862232977213724 [ 1.3313897183518322 ]</span>
+<span class="hljs-comment">// 8 0.2862232977213724 0.7103628434248046 [ 2.034729412908106 ]</span>
+<span class="hljs-comment">// 9 0.7103628434248046 1 [ 2.7182818284562535 ]</span>
+<span class="hljs-comment">// [ 2.7182818284562535 ]</span></code></pre>
+				<p>You will observe that <code>odex</code> has chosen its own grid points for evaluation.
+					Adaptive step size is one of the nicest features of this library: you don&#39;t
+				have to worry about it too much.</p>
+				<h5 id="dense-output">Dense Output</h5>
+				<p>However, you will often want to sample the data at points of your own choosing.
+					When you request <code>denseOutput</code> in the <code>Solver</code> parameters, the function you
+					supply to solve receives a fifth argument which is a closure which you can call to obtain
+					very accurate y values in the interval [x0, x1].  You call this closure with
+					the index (within the y vector) of the component you want to evaluate, and the
+					x value in [x0, x1] where you want to find that y value. One common use case
+					for this is to obtain otuput at evenly spaced points. To this end, we supply a
+				canned callback <code>grid</code> which you can use for this:</p>
+				<pre><code class="language-js">s.denseOutput = <span class="hljs-literal">true</span>;  <span class="hljs-comment">// request interpolation closure in solution callback</span>
+s.solve(f, <span class="hljs-number">0</span>, [<span class="hljs-number">1</span>], <span class="hljs-number">1</span>, s.grid(<span class="hljs-number">0.2</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x,y</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(x,y);
+}));
+<span class="hljs-comment">// 0 [ 1 ]</span>
+<span class="hljs-comment">// 0.2 [ 1.2214027470178732 ]</span>
+<span class="hljs-comment">// 0.4 [ 1.4918240050068732 ]</span>
+<span class="hljs-comment">// 0.6 [ 1.8221161568592519 ]</span>
+<span class="hljs-comment">// 0.8 [ 2.2255378426172316 ]</span>
+<span class="hljs-comment">// 1 [ 2.7182804587510203 ]</span>
+<span class="hljs-comment">// [ 2.7182804587510203 ]</span></code></pre>
+				<p>To see how you could use the dense output feature yourself, take a look at
+				the source to grid.</p>
+				<h5 id="a-system-of-two-first-order-equations">A system of two first order equations</h5>
+				<p>Note that in all these examples, <code>y</code> is a vector: this software is designed to
+					solve systems. Let&#39;s work with the <a href="https://en.wikipedia.org/wiki/Lotka%E2%80%93Volterra_equations">Lotka-Volterra</a> predator-prey system.
+				The system is:</p>
+				<pre><code>dx/<span class="hljs-selector-tag">dt</span> = <span class="hljs-selector-tag">a</span> x - <span class="hljs-selector-tag">b</span> x y
+dy/<span class="hljs-selector-tag">dt</span> = c x y - d y</code></pre><p>For odex, we rename <em>t* to *x</em>, and then <em>x* and *y</em> become <code>y[0]</code> and <code>y[1]</code>.
+					We write a function LV which binds the constants of the population system
+					<code>a</code>, <code>b</code>, <code>c</code>, <code>d</code> and returns a function suitable for the integrator.
+				To represent this system we can write:</p>
+				<pre><code class="language-js"><span class="hljs-keyword">var</span> LotkaVolterra = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a, b, c, d</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y</span>) </span>{
+    <span class="hljs-keyword">return</span> [
+      a * y[<span class="hljs-number">0</span>] - b * y[<span class="hljs-number">0</span>] * y[<span class="hljs-number">1</span>],
+      c * y[<span class="hljs-number">0</span>] * y[<span class="hljs-number">1</span>] - d * y[<span class="hljs-number">1</span>]
+    ];
+  };
+};</code></pre>
+				<p>Then we can solve it. It&#39;s the same as the previous examples, but this time
+					we need a solver created to handle two independent variables and must supply
+					initial data for both of them. To find the state of the rabbits and wolves
+					at time 6, if the state at time zero is {y<sub>0</sub> = 1, y<sub>1</sub>
+				= 1}:</p>
+				<pre><code class="language-js">s = <span class="hljs-keyword">new</span> odex.Solver(<span class="hljs-number">2</span>);
+s.solve(LotkaVolterra(<span class="hljs-number">2</span>/<span class="hljs-number">3</span>, <span class="hljs-number">4</span>/<span class="hljs-number">3</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>), <span class="hljs-number">0</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>], <span class="hljs-number">6</span>).y
+<span class="hljs-comment">// [ 1.6542774481418214, 0.3252864486771545 ]</span>
+<span class="hljs-string">`</span></code></pre>
+				<p>To see more of this system of equations in action, you can visit a
+					<a href="http://blog.littleredcomputer.net/math/odex/js/2016/04/03/lotka-volterra.html">demo page</a> which allows you to vary the initial conditions
+				with the mouse.</p>
+				<h5 id="a-second-order-equation">A second-order equation</h5>
+				<p>You can integrate second order ordinary differential equations by making a
+					simple transformation to a system of first order equations. Consider
+				<a href="https://en.wikipedia.org/wiki/Airy_function">Airy&#39;s equation</a>: y&Prime;&nbsp;&minus;&nbsp;x&thinsp;y = 0:</p>
+				<p>In ODEX, we could write y<sub>0</sub> for y and y<sub>1</sub> for y&prime;,
+					so that y&Prime; = y&prime;<sub>1</sub> and rewrite the system like this:
+					y&prime;<sub>0</sub>&nbsp;=&nbsp;y<sub>1</sub>;&ensp;
+				y&prime;<sub>1</sub>&nbsp;&minus;&nbsp;x&nbsp;y<sub>0</sub>&nbsp;=&nbsp;0 to get:</p>
+				<pre><code class="language-js"><span class="hljs-keyword">var</span> airy = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">x, y</span>) </span>{
+  <span class="hljs-keyword">return</span> [y[<span class="hljs-number">1</span>], x * y[<span class="hljs-number">0</span>]];
+}</code></pre>
+				<p>There&#39;s also a <a href="http://blog.littleredcomputer.net/jekyll/update/2016/04/03/diffeq-javascript.html">demo page</a> for this equation too.</p>
+				<p>You might also enjoy a demo of the <a href="http://blog.littleredcomputer.net/math/odex/js/2016/04/03/lorenz-attractor.html">Lorenz attractor</a> or
+				<a href="http://blog.littleredcomputer.net/math/odex/js/2016/04/20/van-der-pol.html">Van der Pol equation</a>!</p>
+				<h4 id="tests">Tests</h4>
+				<p>This project comes with a mocha test suite. The suite contains other
+					examples of second-order equations which have been translated to
+				systems of first order equations you may examine.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -74,6 +214,9 @@
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-enum tsd-is-external">
+						<a href="enums/outcome.html" class="tsd-kind-icon">Outcome</a>
+					</li>
 					<li class=" tsd-kind-class">
 						<a href="classes/accumulator.html" class="tsd-kind-icon">Accumulator</a>
 					</li>
@@ -92,11 +235,20 @@
 					<li class=" tsd-kind-class">
 						<a href="classes/pr.html" class="tsd-kind-icon">Pr</a>
 					</li>
+					<li class=" tsd-kind-class tsd-is-external">
+						<a href="classes/solver.html" class="tsd-kind-icon">Solver</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/derivative.html" class="tsd-kind-icon">Derivative</a>
+					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/link.html" class="tsd-kind-icon">Link</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/linkoutput.html" class="tsd-kind-icon">Link<wbr>Output</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-is-external">
+						<a href="interfaces/outputfunction.html" class="tsd-kind-icon">Output<wbr>Function</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/perceptualfunction.html" class="tsd-kind-icon">Perceptual<wbr>Function</a>
