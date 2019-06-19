@@ -1,0 +1,41 @@
+{
+  "name": "human-modelling-framework",
+  "version": "0.1.0",
+  "description": "Human sensorimotor control modelling framework based on Markkula et al's paper (DOI: 10.1007/s00422-017-0743-9)",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "lint": "tslint --project \"./tsconfig.json\"",
+    "docs": "typedoc",
+    "gh-pages": "rimraf docs && npm run docs && gh-pages -d docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/christian-nils/human-modelling-framework.git"
+  },
+  "keywords": [
+    "Human",
+    "Behaviour",
+    "Sensorimotor",
+    "control",
+    "Accumulation"
+  ],
+  "author": "Christian-Nils Boda",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/christian-nils/human-modelling-framework/issues"
+  },
+  "homepage": "https://github.com/christian-nils/human-modelling-framework#readme",
+  "dependencies": {
+    "create-typescript-package": "^1.1.1",
+    "eslint": "^5.16.0",
+    "odex": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^12.0.8",
+    "gh-pages": "^2.0.1",
+    "tslint": "^5.17.0",
+    "typescript": "^3.5.2"
+  }
+}
