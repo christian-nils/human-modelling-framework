@@ -5,7 +5,7 @@ export interface LinkOutput {
   outVal: number;
 }
 
-export interface Link {
+export interface LinkFunction {
   // function transforming the perceptual cues into a perceptual quantity
   (
     activity: number | number[],

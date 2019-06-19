@@ -9,7 +9,6 @@ var AccumulatorBranch = /** @class */ (function () {
         this.dt = 0.01;
         this.tau_p = 0.05;
         this.tau_m = 0.1;
-        this.tadj = NaN; // time when the last adjustment occurred
         // accumulator value
         this.value = 0;
         if (dt != undefined)

@@ -6,7 +6,7 @@ export class AccumulatorBranch {
   dt: number = 0.01;
   tau_p: number = 0.05;
   tau_m: number = 0.1;
-  tadj: number = NaN; // time when the last adjustment occurred
+  tadj: number; // time when the last adjustment occurred
   // properties
   accumulator: Accumulator;
   Pp: Pp;

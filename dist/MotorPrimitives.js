@@ -3,10 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var odex_1 = require("odex");
 var MotorPrimitives = /** @class */ (function () {
     function MotorPrimitives(t, y) {
-        // parameters
-        this.T = NaN;
-        // simulation parameters
-        this.t0 = NaN; //initial time value
         // current ODE values
         this.y = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         this.outVal = new Array();

@@ -7,7 +7,7 @@ interface Point {
 
 export class MotorPrimitives {
   // parameters
-  T: number = NaN;
+  T: number;
   a_v: number;
   a_x: number;
   a_y: number;
@@ -18,7 +18,7 @@ export class MotorPrimitives {
   c_0: number;
 
   // simulation parameters
-  t0: number = NaN; //initial time value
+  t0: number; //initial time value
   duration: number; //range of ODE solving
   dt: number;
 
@@ -113,7 +113,7 @@ export class MotorPrimitives {
   }
 
   getValues() {
-    let y: number[] = [];
+    let y = [];
     this.outVal.forEach(element => {
       y.push(element.y);
     });
